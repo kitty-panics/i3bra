@@ -1,0 +1,63 @@
+# Help Manual.
+#
+#
+# Each module must contain the following options and cannot change the order of the options.
+# 
+# "module-status": ""             # Module status
+# "name": ""                      # Name of the module (easy for the user to distinguish)
+# "script-name": ""               # Module script name
+# "refresh-time": ""              # Module refresh time
+# "iconic": ""                    # Custom Iconic fonts
+# "font-color": ""                # Module is the output information color
+# "background": ""                # Module is the output information background color
+# "head-separator": ""            # Module head custom symbol
+# "head-separator-font-color": "" # Font color of the module's head custom symbol
+# "head-separator-bg-color": ""   # Background color of the module's head custom symbol
+# "end-separator": " "            # Module end custom symbol
+# "end-separator-font-color": ""  # Font color of the module's end custom symbol
+# "end-separator-bg-color": ""    # Background color of the module's end custom symbol
+# "additional-parameters_1": ""   # Additional parameter one (Will be passed to the module to make the module more customizable)
+# "additional-parameters_2": ""   # Additional parameter twoa (Will be passed to the module to make the module more customizable)
+# "additional-parameters_3": ""   # Additional parameter three (Will be passed to the module to make the module more customizable)
+# 
+# 
+# The information output order of the status bar will be arranged in the order of the modules (from top to bottom).
+
+
+# The following is the configuration of each module.
+
+# Show current date.
+"module-status": "true"
+"name": "Current date"
+"script-name": "get_Date"
+"refresh-time": "1800"
+"iconic": " "
+"font-color": "#FFFFFF"
+"background": "#464646"
+"head-separator": ""
+"head-separator-font-color": "#464646"
+"head-separator-bg-color": "#FFFFFF"
+"end-separator": " "
+"end-separator-font-color": "#FFFFFF"
+"end-separator-bg-color": "#464646"
+"additional-parameters_1": ""
+"additional-parameters_2": ""
+"additional-parameters_3": ""
+
+# Show current time.
+"module-status": "true"
+"name": "Current time"
+"script-name": "get_Time"
+"refresh-time": "5"
+"iconic": " "
+"font-color": "#FFFFFF"
+"background": "#858585"
+"head-separator": ""
+"head-separator-font-color": "#858585"
+"head-separator-bg-color": "#464646"
+"end-separator": " "
+"end-separator-font-color": "#FFFFFF"
+"end-separator-bg-color": "#858585"
+"additional-parameters_1": ""
+"additional-parameters_2": ""
+"additional-parameters_3": ""

@@ -1,0 +1,213 @@
+#!/bin/bash
+
+#
+# i3bar implemented with Shell.
+#
+
+i3Bra_Output() {
+    # Now send blocks with information forever.
+    echo -e "{
+    \"full_text\": \"$head_separator\",
+    \"color\": \"$head_separator_font_color\",
+    \"background\": \"$head_separator_bg_color\",
+    \"separator\": false,
+    \"separator_block_width\": 0
+},
+{
+    \"name\": \"$module_name\",
+    \"full_text\": \"$iconic$full_text_info\",
+    \"color\": \"$font_color\",
+    \"background\": \"$background_color\",
+    \"separator\": false,
+    \"separator_block_width\": 0
+},
+{
+    \"full_text\": \"$end_separator\",
+    \"color\": \"$end_separator_font_color\",
+    \"background\": \"$end_separator_bg_color\",
+    \"separator\": false,
+    \"separator_block_width\": 0"
+
+    # Judge whether it's the last line or not
+    if [[ "$one_line" -eq "$last_line" ]]; then
+        echo -e "}]"
+    else
+        echo -e "},"
+    fi
+}
+
+i3Bra_Parsing() {
+    # Get module name.
+    let module_name_line=$["$one_line"+"1"]
+    module_name=$(cat "$config_file" | sed -n "$module_name_line p" | cut -d "\"" -f 4)
+    # Get script name
+    let script_name_line=$["$one_line"+"2"]
+    script_name=$(cat "$config_file" | sed -n "$script_name_line p" | cut -d "\"" -f 4)
+
+    # Get refresh time.
+    let refresh_time_line=$["$one_line"+"3"]
+    refresh_time=$(cat "$config_file" | sed -n "$refresh_time_line p" | cut -d "\"" -f 4)
+    # Get Iconic fonts.
+    let iconic_line=$["$one_line"+"4"]
+    iconic=$(cat "$config_file" | sed -n "$iconic_line p" | cut -d "\"" -f 4)
+    
+    # Get font color.
+    let font_color_line=$["$one_line"+"5"]
+    font_color=$(cat "$config_file" | sed -n "$font_color_line p" | cut -d "\"" -f 4)
+    # Get background color.
+    let background_color_line=$["$one_line"+"6"]
+    background_color=$(cat "$config_file" | sed -n "$background_color_line p" | cut -d "\"" -f 4)
+    
+    # Get head separator.
+    let head_separator_line=$["$one_line"+"7"]
+    head_separator=$(cat "$config_file" | sed -n "$head_separator_line p" | cut -d "\"" -f 4)
+    # Get head separator font color.
+    let head_separator_font_color_line=$["$one_line"+"8"]
+    head_separator_font_color=$(cat "$config_file" | sed -n "$head_separator_font_color_line p" | cut -d "\"" -f 4)
+    # Get head separator bg color.
+    let head_separator_bg_color_line=$["$one_line"+"9"]
+    head_separator_bg_color=$(cat "$config_file" | sed -n "$head_separator_bg_color_line p" | cut -d "\"" -f 4)
+    
+    # Get end separator.
+    let end_separator_line=$["$one_line"+"10"]
+    end_separator=$(cat "$config_file" | sed -n "$end_separator_line p" | cut -d "\"" -f 4)
+    # Get end separator font color.
+    let end_separator_font_color_line=$["$one_line"+"11"]
+    end_separator_font_color=$(cat "$config_file" | sed -n "$end_separator_font_color_line p" | cut -d "\"" -f 4)
+    # Get end separator bg color.
+    let end_separator_bg_color_line=$["$one_line"+"12"]
+    end_separator_bg_color=$(cat "$config_file" | sed -n "$end_separator_bg_color_line p" | cut -d "\"" -f 4)
+    
+    # Get additional parameters 1
+    let additional_parameters_1_line="$one_line"+13
+    additional_parameters_1=$(cat "$config_file" | sed -n "$additional_parameters_1_line p" | cut -d "\"" -f 4)
+    # Get additional parameters 2
+    let additional_parameters_2_line="$one_line"+14
+    additional_parameters_2=$(cat "$config_file" | sed -n "$additional_parameters_2_line p" | cut -d "\"" -f 4)
+    # Get additional parameters 3
+    let additional_parameters_3_line="$one_line"+15
+    additional_parameters_3=$(cat "$config_file" | sed -n "$additional_parameters_3_line p" | cut -d "\"" -f 4)
+
+    # Determine whether a directory exists.
+    if [[ ! -d "/tmp/i3bra" ]]; then
+        mkdir -p "/tmp/i3bra"
+    else
+        :
+    fi
+    # Get module execution results.
+    full_text_info=$(bash "$current_path/module/$script_name" "$refresh_time" "$counter" "$script_name" "$additional_parameters_1" "$additional_parameters_2" "$additional_parameters_3")
+    # Output JSON.
+    i3Bra_Output
+}
+
+# Output protocol version and others
+Protocol_Version_And_Others() {
+    # Send the header so that i3bar knows we want to use JSON.
+    echo -e "{
+    \"version\": 1,
+    \"stop_signal\": 10,
+    \"cont_signal\": 12,
+    \"click_events\": true 
+}"
+
+    # Begin the endless array.
+    echo -e "["
+
+    # We send an empty first array of blocks to make the loop simpler.
+    echo -e "[]"
+}
+
+i3Bra_Hub() {
+    # Define the initial value of the counter.
+    counter=0
+
+    # Filter out enabled modules.
+    enabled_module=$(cat "$config_file" | grep -n "module-status" | grep "true" | cut -d ":" -f 1)
+
+    # Filter out the last enabled module row
+    last_line=$(echo -e "$enabled_module" | sed -n '$p')
+
+    # Execute Protocol_Version_And_Others function
+    Protocol_Version_And_Others
+
+    # Cycle once per second.
+    while :;
+    do
+        # Now send blocks with information forever.
+        echo -e ",["
+    
+        echo -e "$enabled_module" |
+        while read -r one_line
+        do
+            # Parsing configuration files.
+            i3Bra_Parsing
+        done
+    
+        # Counter.
+        let counter=$["$counter"+"1"]
+        sleep 1
+    done
+}
+
+# Start running.
+Start_Running() {
+    #  Configuration file.
+    config_file="$1"
+
+    # Positioning the real path.
+    uncertain_path=$(which i3bra)
+    if [[ "$?" == 0 ]]; then
+        current_path=$(readlink "$uncertain_path" | awk '{sub(/.{6}$/,"")}1')
+    else
+        current_path=$(pwd)
+    fi
+
+    # Determine whether the configuration file exists.
+    if [[ -f "$config_file" ]]; then
+        i3Bra_Hub
+    else
+        echo -e "
+    No such file.
+    Please verify that the input is correct.
+    "
+    fi
+}
+
+# Man pages.
+Show_Manual_Page() {
+    echo  -e "
+    Usage: i3bra [Options] [CONFIG FILE] ...
+
+    Options:
+    -h, --help     Displays this help
+    -v, --version  Displays version information
+    -c, --config   Specify configuration files
+    "
+}
+
+# Version information.
+Show_Version() {
+    echo -e "
+    i3bra v_0.0.3
+    It is written in the scripting language Bash.
+    "
+}
+
+# Judgment parameter.
+case "$1" in
+"-c" | "--config")
+    Start_Running "$2"
+    ;;
+"-h" | "--help")
+    Show_Manual_Page
+    ;;
+"-v" | "--version")
+    Show_Version
+    ;;
+*)
+    echo -e "
+    No options/arguments were used or the wrong options/arguments were used.
+    Use the -h/-help option for detailed help.
+    "
+    ;;
+esac

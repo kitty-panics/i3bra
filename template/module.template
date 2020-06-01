@@ -1,0 +1,36 @@
+#!/bin/bash
+
+#
+# Module Template.
+#
+
+# Getting parameters
+
+# Get refresh time
+get_refresh_time="$1"
+# Get the value of the counter (seconds)
+get_counter="$2"
+# Get the script's own name
+get_script_name="$3"
+# Get additional parameters
+get_var_1="$4"
+get_var_2="$5"
+get_var_3="$6"
+
+# Determine whether the requirement is met according to refresh time
+
+if [[ `expr $get_counter % $get_refresh_time` == 0 ]]; then
+    # Specific Implementation of Current Module
+
+    # The implementation code of the module is written here.
+    # The implementation code of the module is written here.
+    # The implementation code of the module is written here.
+
+    # Output of current module
+    echo -e "$get_Result" > "/tmp/i3bra/$get_script_name"
+    echo -e "$get_Result"
+else
+    # Output of current module
+    get_Last_Result=$(cat "/tmp/i3bra/$get_script_name")
+    echo -e "$get_Last_Result"
+fi
